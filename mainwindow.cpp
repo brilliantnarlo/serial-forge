@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QGridLayout>
+#include <QPushButton>
+#include <QComboBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -100,7 +102,9 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
-        QLabel *portCom = new QLabel("COM 4");
+        QComboBox *portCom = new QComboBox(this);
+        portCom->addItem("COM 4");
+        portCom->addItem("COM 8");
         portCom->setObjectName("portCom");
         portCom->setStyleSheet(R"(
             #portCom {
@@ -108,16 +112,24 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
-        QLabel *portRefresh = new QLabel("Refresh Ports");
+        QPushButton *portRefresh = new QPushButton("Refresh Ports");
         portRefresh->setObjectName("portRefresh");
         portRefresh->setStyleSheet(R"(
             #portRefresh {
-                color: #6A6F78;
+                color: #027D85;
+                border: .5px solid #D5D7DA;
+                border-radius: 5px;
+                padding-top: 6px;
+                padding-bottom: 6px;
+            }
+            #portRefresh:hover {
+                background-color: #038189;
+                color: white;
             }
         )");
-        portSecBox->addWidget(portSel);
-        portSecBox->addWidget(portCom);
-        portSecBox->addWidget(portRefresh);
+    portSecBox->addWidget(portSel);
+    portSecBox->addWidget(portCom);
+    portSecBox->addWidget(portRefresh);
 
     QLabel *action = new QLabel("ACTIONS");
     action->setObjectName("action");
