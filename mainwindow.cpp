@@ -188,6 +188,12 @@ MainWindow::MainWindow(QWidget *parent)
     actionSecBox->addWidget(actionConn);
     actionSecBox->addWidget(actionDiconn);
 
+
+    QWidget *aboutSection = new QWidget;
+    aboutSection->setContentsMargins(0, 0, 20, 20);
+
+    QGridLayout *aboutSecBox = new QGridLayout(aboutSection);
+
     QLabel *about = new QLabel("ABOUT");
     about->setObjectName("about");
     about->setStyleSheet(R"(
@@ -196,10 +202,12 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
+    aboutSecBox->addWidget(about);
+
     connBoxLayout->addWidget(connectionSection, 0, 0);
     connBoxLayout->addWidget(portSection, 1, 0);
     connBoxLayout->addWidget(actionSection, 2, 0);
-    connBoxLayout->addWidget(about, 3, 0);
+    connBoxLayout->addWidget(aboutSection, 3, 0);
     // ----------------------------------------------------------------------
 
     QWidget *commBox = new QWidget;
@@ -214,13 +222,50 @@ MainWindow::MainWindow(QWidget *parent)
 
     QVBoxLayout *commBoxLayout = new QVBoxLayout(commBox);
 
-    QLabel *command = new QLabel("Command");
+    QWidget *commandSection = new QWidget;
+    QGridLayout *commandSectionBox = new QGridLayout(commandSection);
+    commandSection->setObjectName("commandSection");
+    commandSection->setStyleSheet(R"(
+        #commandSection {
+            border-bottom: .5px solid #E9E9EB;
+            background-color: #FFFFFF;
+        }
+    )");
+
+    QLabel *command = new QLabel("COMMAND");
     command->setObjectName("comm");
     command->setStyleSheet(R"(
         #comm {
-            color: black;
+            color: #7A56ED;
         }
-    )");commBoxLayout->addWidget(command);
+    )");
+    commandSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    commandSectionBox->addWidget(command);
+
+
+    QWidget *serialSection = new QWidget;
+    QGridLayout *serialSectionBox = new QGridLayout(serialSection);
+    serialSection->setObjectName("serialSection");
+    serialSection->setStyleSheet(R"(
+        #serialSection {
+            border-top: .5px solid #E9E9EB;
+            background-color: #FFFFFF;
+        }
+    )");
+
+    QLabel *serialLog = new QLabel("SERIAL LOG");
+    serialLog->setObjectName("serialLog");
+    serialLog->setStyleSheet(R"(
+        #serialLog {
+            color: #027D85;
+        }
+    )");
+
+    serialSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    serialSectionBox->addWidget(serialLog);
+
+    commBoxLayout->addWidget(commandSection);
+    commBoxLayout->addWidget(serialSection);
 
 
 
@@ -250,6 +295,7 @@ MainWindow::MainWindow(QWidget *parent)
     readyConn->setStyleSheet(R"(
         #readyConn {
             color: black;
+
         }
     )");
 
