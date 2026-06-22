@@ -245,7 +245,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout *bottomLayout = new QHBoxLayout(bottomBox);
 
-    QLabel *readyConn = new QLabel("Ready Connection");
+    QLabel *readyConn = new QLabel("Ready");
     readyConn->setObjectName("readyConn");
     readyConn->setStyleSheet(R"(
         #readyConn {
@@ -253,7 +253,16 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
+    QLabel *activeConn = new QLabel("No active connection");
+    activeConn->setObjectName("activeConn");
+    activeConn->setStyleSheet(R"(
+        #activeConn {
+            color: #6A6F78;
+        }
+    )");
+
     bottomLayout->addWidget(readyConn);
+    bottomLayout->addWidget(activeConn);
     // ----------------------------------------------------------------------
 
     mainLayout->addLayout(topLayout);
