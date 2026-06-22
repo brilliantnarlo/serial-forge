@@ -123,33 +123,82 @@ MainWindow::MainWindow(QWidget *parent)
                 padding-bottom: 6px;
             }
             #portRefresh:hover {
-                background-color: #038189;
-                color: white;
+                background-color: #FAFAFB;
+                color: #027D85;
             }
         )");
     portSecBox->addWidget(portSel);
     portSecBox->addWidget(portCom);
     portSecBox->addWidget(portRefresh);
 
-    QLabel *action = new QLabel("ACTIONS");
-    action->setObjectName("action");
-    action->setStyleSheet(R"(
-        #action {
-            color: black;
+
+    QWidget *actionSection = new QWidget;
+    actionSection->setObjectName("actionSection");
+    actionSection->setStyleSheet(R"(
+        #actionSection{
+            border-bottom: .5px solid #E9E9EB;
         }
     )");
+    actionSection->setContentsMargins(0, 0, 20, 20);
+
+        QGridLayout *actionSecBox = new QGridLayout(actionSection);
+
+        QLabel *action = new QLabel("ACTIONS");
+        action->setObjectName("action");
+        action->setStyleSheet(R"(
+            #action {
+                color: #6A6F78;
+            }
+        )");
+
+        QPushButton *actionConn = new QPushButton("Connect");
+        actionConn->setObjectName("actionConn");
+        actionConn->setStyleSheet(R"(
+            #actionConn {
+                color: white;
+                border: .5px solid #D5D7DA;
+                border-radius: 5px;
+                padding-top: 6px;
+                padding-bottom: 6px;
+                background-color: #038189;
+            }
+            #actionConn:hover {
+                background-color: #038189;
+                color: white;
+            }
+        )");
+
+        QPushButton *actionDiconn = new QPushButton("Disconnect");
+        actionDiconn->setObjectName("actionDiconn");
+        actionDiconn->setStyleSheet(R"(
+            #actionDiconn {
+                color: black;
+                border: .5px solid #D5D7DA;
+                border-radius: 5px;
+                padding-top: 6px;
+                padding-bottom: 6px;
+            }
+            #actionDiconn:hover {
+                background-color: #FAFAFB;
+                color: black;
+            }
+        )");
+
+    actionSecBox->addWidget(action);
+    actionSecBox->addWidget(actionConn);
+    actionSecBox->addWidget(actionDiconn);
 
     QLabel *about = new QLabel("ABOUT");
     about->setObjectName("about");
     about->setStyleSheet(R"(
         #about {
-            color: black;
+            color: #6A6F78;
         }
     )");
 
     connBoxLayout->addWidget(connectionSection, 0, 0);
     connBoxLayout->addWidget(portSection, 1, 0);
-    connBoxLayout->addWidget(action, 2, 0);
+    connBoxLayout->addWidget(actionSection, 2, 0);
     connBoxLayout->addWidget(about, 3, 0);
     // ----------------------------------------------------------------------
 
@@ -176,7 +225,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     topLayout->addWidget(connBox, 0, 0);
-    topLayout->setSpacing(40);
+    topLayout->setSpacing(20);
     topLayout->addWidget(commBox, 0, 1);
     topLayout->setColumnStretch(0, 1);
     topLayout->setColumnStretch(1, 4);
