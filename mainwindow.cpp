@@ -8,6 +8,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QComboBox>
+#include <QLineEdit>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -239,8 +240,21 @@ MainWindow::MainWindow(QWidget *parent)
             color: #7A56ED;
         }
     )");
+
+    QLineEdit *chat = new QLineEdit();
+    chat->setObjectName("chat");
+    chat->setPlaceholderText("Type text to send...");
+    chat->setStyleSheet(R"(
+        #chat {
+            padding: 5px;
+            border-radius: 5px;
+            border: .5px solid #E9E9EB;
+        }
+    )");
+
     commandSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     commandSectionBox->addWidget(command);
+    commandSectionBox->addWidget(chat);
 
 
     QWidget *serialSection = new QWidget;
