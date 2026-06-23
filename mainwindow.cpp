@@ -114,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
                 color: #6A6F78;
             }
         )");
+        connect(portCom, &QComboBox::textActivated, this, &MainWindow::comClicked);
 
         QPushButton *portRefresh = new QPushButton("Refresh Ports");
         portRefresh->setObjectName("portRefresh");
@@ -161,13 +162,14 @@ MainWindow::MainWindow(QWidget *parent)
 
         QLabel *buadRateLabel = new QLabel("Baud Rate");
         baudRate = new QComboBox;
+        connect(baudRate, &QComboBox::textActivated, this, &MainWindow::baudRateClicked);
 
         QLabel *dataBitsLabel = new QLabel("Data Bits");
         QComboBox *dataBits = new QComboBox;
         dataBits->addItem("8");
-        dataBits->addItem("5");
-        dataBits->addItem("6");
         dataBits->addItem("7");
+        dataBits->addItem("6");
+        dataBits->addItem("5");
 
         QLabel *parityLabel = new QLabel("Parity");
         QComboBox *parity = new QComboBox;
@@ -402,7 +404,14 @@ MainWindow::MainWindow(QWidget *parent)
     readyConn->setStyleSheet(R"(
         #readyConn {
             color: black;
+        }
+    )");
 
+    comSelected = new QLabel();
+    comSelected->setObjectName("comSelected");
+    comSelected->setStyleSheet(R"(
+        #comSelected {
+            color: #7A56ED;
         }
     )");
 
@@ -415,6 +424,8 @@ MainWindow::MainWindow(QWidget *parent)
     )");
 
     bottomLayout->addWidget(readyConn);
+    bottomLayout->addWidget(comSelected);
+    bottomLayout->addStretch();
     bottomLayout->addWidget(activeConn);
     // ----------------------------------------------------------------------
 
@@ -450,6 +461,14 @@ void MainWindow::refreshPort() {
     } else {
         log(QString("Found %1 serial port(s).").arg(ports.size()));
     }
+}
+
+void MainWindow::comClicked(QString com) {
+    comSelected->setText(com);
+}
+
+void MainWindow::baudRateClicked(QString baud) {
+    log(QString("Baud Rate: [%1]").arg(baud));
 }
 
 void MainWindow::connectSerial() {

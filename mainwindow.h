@@ -28,6 +28,8 @@ private:
     void log(const QString &text);
     void connectSerial();
     void disConnectSerial();
+    void baudRateClicked(QString baud);
+    void comClicked(QString com);
 
 private:
     QComboBox *portCom = nullptr;
@@ -35,6 +37,7 @@ private:
     QPushButton *actionConn = nullptr;
     QPushButton *actionDisconn = nullptr;
     QComboBox *baudRate = nullptr;
+    QLabel *comSelected = nullptr;
 
 };
 #endif // MAINWINDOW_H
