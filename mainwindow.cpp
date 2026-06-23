@@ -179,7 +179,6 @@ MainWindow::MainWindow(QWidget *parent)
     baudRate->setStyleSheet(R"(
         #baudRate {
             color: black;
-            padding: 20px;
         }
     )");
 
