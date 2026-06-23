@@ -32,7 +32,7 @@ private:
     void comClicked(QString com);
     void dataBitsClicked(QString data);
     void parityClicked(QString prt);
-
+    void clearLogs();
 private:
     QComboBox *portCom = nullptr;
     QTextEdit *logBox = nullptr;
@@ -42,6 +42,7 @@ private:
     QLabel *comSelected = nullptr;
     QComboBox *dataBits = nullptr;
     QComboBox *parity = nullptr;
+    QPushButton *clearLine = nullptr;
 
 };
 #endif // MAINWINDOW_H

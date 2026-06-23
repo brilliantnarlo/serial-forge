@@ -160,12 +160,37 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
-        QLabel *buadRateLabel = new QLabel("Baud Rate");
+        QLabel *baudRateLabel = new QLabel("Baud Rate");
+        baudRateLabel->setObjectName("baudRateLabel");
+        baudRateLabel->setStyleSheet(R"(
+            #baudRateLabel {
+                color: black;
+            }
+        )");
         baudRate = new QComboBox;
+        baudRate->setObjectName("baudRate");
+        baudRate->setStyleSheet(R"(
+            #baudRate {
+                color: black;
+            }
+        )");
         connect(baudRate, &QComboBox::textActivated, this, &MainWindow::baudRateClicked);
 
         QLabel *dataBitsLabel = new QLabel("Data Bits");
+        dataBitsLabel->setObjectName("dataBitsLabel");
+        dataBitsLabel->setStyleSheet(R"(
+            #dataBitsLabel {
+                color: black;
+            }
+        )");
+
         dataBits = new QComboBox;
+        dataBits->setObjectName("dataBits");
+        dataBits->setStyleSheet(R"(
+            #dataBits {
+                color: black;
+            }
+        )");
         dataBits->addItem("8");
         dataBits->addItem("7");
         dataBits->addItem("6");
@@ -173,7 +198,19 @@ MainWindow::MainWindow(QWidget *parent)
         connect(dataBits, &QComboBox::textActivated, this, &MainWindow::dataBitsClicked);
 
         QLabel *parityLabel = new QLabel("Parity");
+        parityLabel->setObjectName("parityLabel");
+        parityLabel->setStyleSheet(R"(
+            #parityLabel {
+                color: black;
+            }
+        )");
         parity = new QComboBox;
+        parity->setObjectName("parity");
+        parity->setStyleSheet(R"(
+            #parity {
+                color: black;
+            }
+        )");
         parity->addItem("None");
         parity->addItem("Even");
         parity->addItem("Mark");
@@ -181,7 +218,19 @@ MainWindow::MainWindow(QWidget *parent)
         connect(parity, &QComboBox::textActivated, this, &MainWindow::parityClicked);
 
         QLabel *stopBitsLabel = new QLabel("Stop Bits");
+        stopBitsLabel->setObjectName("stopBitsLabel");
+        stopBitsLabel->setStyleSheet(R"(
+            #stopBitsLabel {
+                color: black;
+            }
+        )");
         QComboBox *stopBits = new QComboBox;
+        stopBits->setObjectName("stopBits");
+        stopBits->setStyleSheet(R"(
+            #stopBits {
+                color: black;
+            }
+        )");
         stopBits->addItem("1");
         stopBits->addItem("1.5");
         stopBits->addItem("2");
@@ -226,7 +275,7 @@ MainWindow::MainWindow(QWidget *parent)
         });
 
     actionSecBox->addWidget(action);
-    actionSecBox->addWidget(buadRateLabel);
+    actionSecBox->addWidget(baudRateLabel);
     actionSecBox->addWidget(baudRate);
     actionSecBox->addWidget(dataBitsLabel);
     actionSecBox->addWidget(dataBits);
@@ -317,7 +366,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QPushButton *clearLine = new QPushButton("Clear");
+    clearLine = new QPushButton("Clear");
     clearLine->setObjectName("clearLine");
     clearLine->setStyleSheet(R"(
         #clearLine {
@@ -330,6 +379,9 @@ MainWindow::MainWindow(QWidget *parent)
             background-color: #FAFAFB;
         }
     )");
+    connect(clearLine, &QPushButton::clicked, this, [this](){
+        clearLogs();
+    });
     sendLineBox->setAlignment(Qt::AlignRight);
     sendLineBox->addWidget(sendLine);
     sendLineBox->addWidget(clearLine);
@@ -493,6 +545,12 @@ void MainWindow::log(const QString &text)
 {
     const QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
     logBox->append(QString("[%1] %2").arg(time, text));
+}
+
+void MainWindow::clearLogs() {
+    logBox->clear();
+    const QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
+    logBox->append(QString("[%1] %2").arg(time, "Log Cleared!"));
 }
 
 MainWindow::~MainWindow()
