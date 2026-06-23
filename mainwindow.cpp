@@ -252,9 +252,39 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
+    QWidget *sendLineWidget = new QWidget;
+    QHBoxLayout *sendLineBox = new QHBoxLayout(sendLineWidget);
+    sendLineBox->setContentsMargins(0, 0, 0, 0);
+
+    QPushButton *sendLine = new QPushButton("Send Line");
+    sendLine->setObjectName("sendLine");
+    sendLine->setStyleSheet(R"(
+        #sendLine {
+            color: white;
+            background-color: #7A56ED;
+            border-radius: 5px;
+            padding: 8px 20px;
+        }
+    )");
+
+    QPushButton *clearLine = new QPushButton("Clear");
+    clearLine->setObjectName("clearLine");
+    clearLine->setStyleSheet(R"(
+        #clearLine {
+            color: white;
+            background-color: #7A56ED;
+            border-radius: 5px;
+            padding: 8px 20px;
+        }
+    )");
+    sendLineBox->setAlignment(Qt::AlignRight);
+    sendLineBox->addWidget(sendLine);
+    sendLineBox->addWidget(clearLine);
+
     commandSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    commandSectionBox->addWidget(command);
-    commandSectionBox->addWidget(chat);
+    commandSectionBox->addWidget(command, 0, 0);
+    commandSectionBox->addWidget(chat, 1, 0);
+    commandSectionBox->addWidget(sendLineWidget, 2, 0);
 
 
     QWidget *serialSection = new QWidget;
