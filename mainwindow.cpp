@@ -15,6 +15,7 @@
 #include <QDateTime>
 #include <QByteArray>
 #include <QIODevice>
+#include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -71,7 +72,10 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QLabel *icon = new QLabel("Icon");
+    QPixmap icons(":/assets/fpga_ui_icons/disconnect_broken_link.png");
+    QLabel *icon = new QLabel;
+    icon->setPixmap(icons.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
     icon->setObjectName("connIcon");
     icon->setStyleSheet(R"(
         #connIcon {
@@ -306,26 +310,11 @@ MainWindow::MainWindow(QWidget *parent)
     actionSecBox->addWidget(actionConn);
     actionSecBox->addWidget(actionDisconn);
 
-    // ABOUT SECTION --------------------------------------------------------
-    QWidget *aboutSection = new QWidget;
-    aboutSection->setContentsMargins(0, 0, 20, 20);
 
-    QGridLayout *aboutSecBox = new QGridLayout(aboutSection);
-
-    QLabel *about = new QLabel("ABOUT");
-    about->setObjectName("about");
-    about->setStyleSheet(R"(
-        #about {
-            color: #6A6F78;
-        }
-    )");
-
-    aboutSecBox->addWidget(about);
 
     connBoxLayout->addWidget(connectionSection, 0, 0);
     connBoxLayout->addWidget(portSection, 1, 0);
     connBoxLayout->addWidget(actionSection, 2, 0);
-    connBoxLayout->addWidget(aboutSection, 3, 0);
 
     // COMMUNICATION BOX ----------------------------------------------------
     QWidget *commBox = new QWidget;
@@ -435,6 +424,15 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
+    QWidget *serialBoxWidget = new QWidget;
+    QHBoxLayout *serialBoxLayout = new QHBoxLayout(serialBoxWidget);
+
+    serialBoxLayout->setContentsMargins(0, 0, 0, 0);
+    QPixmap serialIcon(":/assets/fpga_ui_icons/terminal_log.png");
+    QLabel *serialIconL = new QLabel;
+    serialIconL->setPixmap(serialIcon.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    serialIconL->setAlignment(Qt::AlignCenter);
+
     QLabel *serialLog = new QLabel("SERIAL LOG");
     serialLog->setObjectName("serialLog");
     serialLog->setStyleSheet(R"(
@@ -442,6 +440,10 @@ MainWindow::MainWindow(QWidget *parent)
             color: #027D85;
         }
     )");
+
+    serialBoxLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    serialBoxLayout->addWidget(serialIconL);
+    serialBoxLayout->addWidget(serialLog);
 
     logBox = new QTextEdit();
     logBox->setReadOnly(true);
@@ -456,7 +458,7 @@ MainWindow::MainWindow(QWidget *parent)
     )");
 
     serialSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    serialSectionBox->addWidget(serialLog);
+    serialSectionBox->addWidget(serialBoxWidget);
     serialSectionBox->addWidget(logBox);
 
     commBoxLayout->addWidget(commandSection);
