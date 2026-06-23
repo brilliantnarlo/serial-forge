@@ -544,8 +544,8 @@ void MainWindow::parityClicked(QString prt) {
 void MainWindow::connectSerial() {
 
     QString selectedPort = portCom->currentData().toString();
-    int selectedBaudRate = baudRate->currentData().toInt();
-    int selectedDataBits = dataBits->currentData().toInt();
+    int selectedBaudRate = baudRate->currentText().toInt();
+    int selectedDataBits = dataBits->currentText().toInt();
     QString selectedParity = parity->currentText();
 
     int selectedStopBits = stopBits->currentData().toInt();
