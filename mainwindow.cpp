@@ -159,7 +159,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
-        QPushButton *actionConn = new QPushButton("Connect");
+        actionConn = new QPushButton("Connect");
         actionConn->setObjectName("actionConn");
         actionConn->setStyleSheet(R"(
             #actionConn {
@@ -175,26 +175,32 @@ MainWindow::MainWindow(QWidget *parent)
                 color: white;
             }
         )");
+        connect(actionConn, &QPushButton::clicked, this, [this](){
+            connectSerial();
+        });
 
-        QPushButton *actionDiconn = new QPushButton("Disconnect");
-        actionDiconn->setObjectName("actionDiconn");
-        actionDiconn->setStyleSheet(R"(
-            #actionDiconn {
+        actionDisconn = new QPushButton("Disconnect");
+        actionDisconn->setObjectName("actionDisconn");
+        actionDisconn->setStyleSheet(R"(
+            #actionDisconn {
                 color: black;
                 border: .5px solid #D5D7DA;
                 border-radius: 5px;
                 padding-top: 6px;
                 padding-bottom: 6px;
             }
-            #actionDiconn:hover {
+            #actionDisconn:hover {
                 background-color: #FAFAFB;
                 color: black;
             }
         )");
+        connect(actionDisconn, &QPushButton::clicked, this, [this](){
+            disConnectSerial();
+        });
 
     actionSecBox->addWidget(action);
     actionSecBox->addWidget(actionConn);
-    actionSecBox->addWidget(actionDiconn);
+    actionSecBox->addWidget(actionDisconn);
 
 
     QWidget *aboutSection = new QWidget;
@@ -401,6 +407,14 @@ void MainWindow::refreshPort() {
     } else {
         log(QString("Found %1 serial port(s).").arg(ports.size()));
     }
+}
+
+void MainWindow::connectSerial() {
+    log("Connected");
+}
+
+void MainWindow::disConnectSerial() {
+    log("Disconnected");
 }
 
 void MainWindow::log(const QString &text)

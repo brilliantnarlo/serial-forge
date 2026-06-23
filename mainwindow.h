@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QComboBox>
 #include <QTextEdit>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,10 +26,14 @@ private:
 private:
     void refreshPort();
     void log(const QString &text);
+    void connectSerial();
+    void disConnectSerial();
 
 private:
     QComboBox *portCom = nullptr;
     QTextEdit *logBox = nullptr;
+    QPushButton *actionConn = nullptr;
+    QPushButton *actionDisconn = nullptr;
 
 };
 #endif // MAINWINDOW_H
