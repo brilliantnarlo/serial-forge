@@ -10,6 +10,9 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QSerialPortInfo>
+#include <QList>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -104,9 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
-        QComboBox *portCom = new QComboBox(this);
-        portCom->addItem("COM 4");
-        portCom->addItem("COM 8");
+        portCom = new QComboBox(this);
         portCom->setObjectName("portCom");
         portCom->setStyleSheet(R"(
             #portCom {
@@ -129,9 +130,14 @@ MainWindow::MainWindow(QWidget *parent)
                 color: #027D85;
             }
         )");
+    connect(portRefresh, &QPushButton::clicked, this, [this]() {
+        refreshPort();
+    });
     portSecBox->addWidget(portSel);
     portSecBox->addWidget(portCom);
     portSecBox->addWidget(portRefresh);
+
+
 
 
     QWidget *actionSection = new QWidget;
@@ -311,7 +317,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QTextEdit *logBox = new QTextEdit();
+    logBox = new QTextEdit();
     logBox->setReadOnly(true);
     logBox->setObjectName("logBox");
     logBox->setStyleSheet(R"(
@@ -319,6 +325,7 @@ MainWindow::MainWindow(QWidget *parent)
             background-color: #FAFAFB;
             border: .5px solid #E9E9EB;
             border-radius: 5px;
+            color: #027D85;
         }
     )");
 
@@ -376,7 +383,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(bottomBox);
+    refreshPort();
 
+}
+
+void MainWindow::refreshPort() {
+    portCom->clear();
+
+    const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+    for (const QSerialPortInfo &port : ports) {
+        QString label = QString("%1 | %2").arg(port.portName(), port.description());
+        portCom->addItem(label, port.portName());
+    }
+
+    if (ports.isEmpty()) {
+        log("Port not selected");
+    } else {
+        log(QString("Found %1 serial port(s).").arg(ports.size()));
+    }
+}
+
+void MainWindow::log(const QString &text)
+{
+    const QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
+    logBox->append(QString("[%1] %2").arg(time, text));
 }
 
 MainWindow::~MainWindow()

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QComboBox>
+#include <QTextEdit>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,5 +21,14 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+private:
+    void refreshPort();
+    void log(const QString &text);
+
+private:
+    QComboBox *portCom = nullptr;
+    QTextEdit *logBox = nullptr;
+
 };
 #endif // MAINWINDOW_H
