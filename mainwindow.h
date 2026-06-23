@@ -33,6 +33,7 @@ private:
     void dataBitsClicked(QString data);
     void parityClicked(QString prt);
     void clearLogs();
+    void sendSerial(QString packet);
 private:
     QComboBox *portCom = nullptr;
     QTextEdit *logBox = nullptr;
@@ -43,6 +44,7 @@ private:
     QComboBox *dataBits = nullptr;
     QComboBox *parity = nullptr;
     QPushButton *clearLine = nullptr;
+    QLineEdit *chat = nullptr;
 
 };
 #endif // MAINWINDOW_H

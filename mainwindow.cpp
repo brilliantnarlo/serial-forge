@@ -338,7 +338,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QLineEdit *chat = new QLineEdit();
+    chat = new QLineEdit();
     chat->setObjectName("chat");
     chat->setPlaceholderText("Type text to send...");
     chat->setStyleSheet(R"(
@@ -350,6 +350,9 @@ MainWindow::MainWindow(QWidget *parent)
             background-color: #FAFAFB;
         }
     )");
+    connect(chat, &QLineEdit::returnPressed, this, [this](){
+
+    });
 
     QWidget *sendLineWidget = new QWidget;
     QHBoxLayout *sendLineBox = new QHBoxLayout(sendLineWidget);
@@ -365,6 +368,9 @@ MainWindow::MainWindow(QWidget *parent)
             padding: 8px 20px;
         }
     )");
+    connect(sendLine, &QPushButton::clicked, this, [this](){
+        sendSerial(chat->text());
+    });
 
     clearLine = new QPushButton("Clear");
     clearLine->setObjectName("clearLine");
@@ -539,6 +545,14 @@ void MainWindow::connectSerial() {
 
 void MainWindow::disConnectSerial() {
     log("Disconnected");
+}
+
+void MainWindow::sendSerial(QString packet) {
+    if(packet.isEmpty()) {
+        log("No command send!");
+        return;
+    }
+    log(QString("TX: %1").arg(packet));
 }
 
 void MainWindow::log(const QString &text)
