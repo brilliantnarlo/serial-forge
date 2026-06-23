@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QTextEdit>
 #include <QPushButton>
+#include <QSerialPort>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,6 +36,7 @@ private:
     void clearLogs();
     void sendSerial(QString packet);
 private:
+    QSerialPort *serial = nullptr;
     QComboBox *portCom = nullptr;
     QTextEdit *logBox = nullptr;
     QPushButton *actionConn = nullptr;
@@ -45,6 +47,7 @@ private:
     QComboBox *parity = nullptr;
     QPushButton *clearLine = nullptr;
     QLineEdit *chat = nullptr;
+
 
 };
 #endif // MAINWINDOW_H

@@ -540,7 +540,15 @@ void MainWindow::parityClicked(QString prt) {
 }
 
 void MainWindow::connectSerial() {
-    log("Connected");
+    if (serial->isOpen()) {
+    }
+
+    serial->setPortName(comSelected->text());
+
+    if (!serial->open(QIODevice::ReadWrite)) {
+        log("OPEN FAILED: " + serial->errorString());
+        return;
+    }
 }
 
 void MainWindow::disConnectSerial() {
