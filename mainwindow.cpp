@@ -247,9 +247,11 @@ MainWindow::MainWindow(QWidget *parent)
     chat->setPlaceholderText("Type text to send...");
     chat->setStyleSheet(R"(
         #chat {
+            color: black;
             padding: 5px;
             border-radius: 5px;
             border: .5px solid #E9E9EB;
+            background-color: #FAFAFB;
         }
     )");
 
@@ -272,10 +274,13 @@ MainWindow::MainWindow(QWidget *parent)
     clearLine->setObjectName("clearLine");
     clearLine->setStyleSheet(R"(
         #clearLine {
-            color: white;
-            background-color: #7A56ED;
+            color: black;
+            border: .5px solid #E9E9EB;
             border-radius: 5px;
             padding: 8px 20px;
+        }
+        #clearLine:hover{
+            background-color: #FAFAFB;
         }
     )");
     sendLineBox->setAlignment(Qt::AlignRight);
@@ -308,6 +313,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     QTextEdit *logBox = new QTextEdit();
     logBox->setReadOnly(true);
+    logBox->setObjectName("logBox");
+    logBox->setStyleSheet(R"(
+        #logBox {
+            background-color: #FAFAFB;
+            border: .5px solid #E9E9EB;
+            border-radius: 5px;
+        }
+    )");
 
     serialSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     serialSectionBox->addWidget(serialLog);
