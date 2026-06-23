@@ -13,9 +13,13 @@
 #include <QSerialPortInfo>
 #include <QList>
 #include <QDateTime>
+#include <QByteArray>
+#include <QIODevice>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    serial(new QSerialPort(this))
 {
     ui->setupUi(this);
 
@@ -32,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
     )");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
-
     QGridLayout *topLayout = new QGridLayout;
 
     // CONNECTION -----------------------------------------------------------
@@ -52,46 +55,47 @@ MainWindow::MainWindow(QWidget *parent)
     QWidget *connectionSection = new QWidget;
     connectionSection->setObjectName("connSection");
     connectionSection->setStyleSheet(R"(
-        #connSection{
+        #connSection {
             border-bottom: .5px solid #E9E9EB;
         }
     )");
     connectionSection->setContentsMargins(0, 0, 20, 20);
+
     QGridLayout *connectionSecBox = new QGridLayout(connectionSection);
-        QLabel *connection = new QLabel("CONNECTION");
-        connection->setObjectName("conn");
-        connection->setStyleSheet(R"(
-            #conn {
-                color: #6A6F78;
-            }
-        )");
 
-        QLabel *icon = new QLabel("Icon");
-        icon->setObjectName("conn");
-        icon->setStyleSheet(R"(
-            #conn {
-                color: #6A6F78;
-            }
-        )");
+    QLabel *connection = new QLabel("CONNECTION");
+    connection->setObjectName("conn");
+    connection->setStyleSheet(R"(
+        #conn {
+            color: #6A6F78;
+        }
+    )");
 
-        QLabel *disconnect = new QLabel("Disconnected");
-        disconnect->setObjectName("conn");
-        disconnect->setStyleSheet(R"(
-            #conn {
-                color: #202733;
-            }
-        )");
+    QLabel *icon = new QLabel("Icon");
+    icon->setObjectName("connIcon");
+    icon->setStyleSheet(R"(
+        #connIcon {
+            color: #6A6F78;
+        }
+    )");
+
+    connectionStatus = new QLabel("Disconnected");
+    connectionStatus->setObjectName("connectionStatus");
+    connectionStatus->setStyleSheet(R"(
+        #connectionStatus {
+            color: #202733;
+        }
+    )");
 
     connectionSecBox->addWidget(connection, 0, 0);
     connectionSecBox->addWidget(icon, 1, 0);
-    connectionSecBox->addWidget(disconnect, 1, 1);
+    connectionSecBox->addWidget(connectionStatus, 1, 1);
 
-
-
+    // PORT SECTION ---------------------------------------------------------
     QWidget *portSection = new QWidget;
     portSection->setObjectName("portSection");
     portSection->setStyleSheet(R"(
-        #portSection{
+        #portSection {
             border-bottom: .5px solid #E9E9EB;
         }
     )");
@@ -99,181 +103,196 @@ MainWindow::MainWindow(QWidget *parent)
 
     QGridLayout *portSecBox = new QGridLayout(portSection);
 
-        QLabel *portSel = new QLabel("PORT SELECTION");
-        portSel->setObjectName("portSel");
-        portSel->setStyleSheet(R"(
-            #portSel {
-                color: #6A6F78;
-            }
-        )");
+    QLabel *portSel = new QLabel("PORT SELECTION");
+    portSel->setObjectName("portSel");
+    portSel->setStyleSheet(R"(
+        #portSel {
+            color: #6A6F78;
+        }
+    )");
 
-        portCom = new QComboBox(this);
-        portCom->setObjectName("portCom");
-        portCom->setStyleSheet(R"(
-            #portCom {
-                color: #6A6F78;
-            }
-        )");
-        connect(portCom, &QComboBox::textActivated, this, &MainWindow::comClicked);
+    portCom = new QComboBox(this);
+    portCom->setObjectName("portCom");
+    portCom->setStyleSheet(R"(
+        #portCom {
+            color: #6A6F78;
+        }
+    )");
 
-        QPushButton *portRefresh = new QPushButton("Refresh Ports");
-        portRefresh->setObjectName("portRefresh");
-        portRefresh->setStyleSheet(R"(
-            #portRefresh {
-                color: #027D85;
-                border: .5px solid #D5D7DA;
-                border-radius: 5px;
-                padding-top: 6px;
-                padding-bottom: 6px;
-            }
-            #portRefresh:hover {
-                background-color: #FAFAFB;
-                color: #027D85;
-            }
-        )");
+    connect(portCom, &QComboBox::textActivated, this, &MainWindow::comClicked);
+
+    QPushButton *portRefresh = new QPushButton("Refresh Ports");
+    portRefresh->setObjectName("portRefresh");
+    portRefresh->setStyleSheet(R"(
+        #portRefresh {
+            color: #027D85;
+            border: .5px solid #D5D7DA;
+            border-radius: 5px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        #portRefresh:hover {
+            background-color: #FAFAFB;
+            color: #027D85;
+        }
+    )");
+
     connect(portRefresh, &QPushButton::clicked, this, [this]() {
         refreshPort();
     });
+
     portSecBox->addWidget(portSel);
     portSecBox->addWidget(portCom);
     portSecBox->addWidget(portRefresh);
 
-
-
-
+    // ACTION SECTION -------------------------------------------------------
     QWidget *actionSection = new QWidget;
     actionSection->setObjectName("actionSection");
     actionSection->setStyleSheet(R"(
-        #actionSection{
+        #actionSection {
             border-bottom: .5px solid #E9E9EB;
         }
     )");
     actionSection->setContentsMargins(0, 0, 20, 20);
 
-        QGridLayout *actionSecBox = new QGridLayout(actionSection);
+    QGridLayout *actionSecBox = new QGridLayout(actionSection);
 
-        QLabel *action = new QLabel("ACTIONS");
-        action->setObjectName("action");
-        action->setStyleSheet(R"(
-            #action {
-                color: #6A6F78;
-            }
-        )");
+    QLabel *action = new QLabel("ACTIONS");
+    action->setObjectName("action");
+    action->setStyleSheet(R"(
+        #action {
+            color: #6A6F78;
+        }
+    )");
 
-        QLabel *baudRateLabel = new QLabel("Baud Rate");
-        baudRateLabel->setObjectName("baudRateLabel");
-        baudRateLabel->setStyleSheet(R"(
-            #baudRateLabel {
-                color: black;
-            }
-        )");
-        baudRate = new QComboBox;
-        baudRate->setObjectName("baudRate");
-        baudRate->setStyleSheet(R"(
-            #baudRate {
-                color: black;
-            }
-        )");
-        connect(baudRate, &QComboBox::textActivated, this, &MainWindow::baudRateClicked);
+    QLabel *baudRateLabel = new QLabel("Baud Rate");
+    baudRateLabel->setObjectName("baudRateLabel");
+    baudRateLabel->setStyleSheet(R"(
+        #baudRateLabel {
+            color: black;
+        }
+    )");
 
-        QLabel *dataBitsLabel = new QLabel("Data Bits");
-        dataBitsLabel->setObjectName("dataBitsLabel");
-        dataBitsLabel->setStyleSheet(R"(
-            #dataBitsLabel {
-                color: black;
-            }
-        )");
+    baudRate = new QComboBox;
+    baudRate->setObjectName("baudRate");
+    baudRate->setStyleSheet(R"(
+        #baudRate {
+            color: black;
+        }
+    )");
 
-        dataBits = new QComboBox;
-        dataBits->setObjectName("dataBits");
-        dataBits->setStyleSheet(R"(
-            #dataBits {
-                color: black;
-            }
-        )");
-        dataBits->addItem("8");
-        dataBits->addItem("7");
-        dataBits->addItem("6");
-        dataBits->addItem("5");
-        connect(dataBits, &QComboBox::textActivated, this, &MainWindow::dataBitsClicked);
+    connect(baudRate, &QComboBox::textActivated, this, &MainWindow::baudRateClicked);
 
-        QLabel *parityLabel = new QLabel("Parity");
-        parityLabel->setObjectName("parityLabel");
-        parityLabel->setStyleSheet(R"(
-            #parityLabel {
-                color: black;
-            }
-        )");
-        parity = new QComboBox;
-        parity->setObjectName("parity");
-        parity->setStyleSheet(R"(
-            #parity {
-                color: black;
-            }
-        )");
-        parity->addItem("None");
-        parity->addItem("Even");
-        parity->addItem("Mark");
-        parity->addItem("Odd");
-        connect(parity, &QComboBox::textActivated, this, &MainWindow::parityClicked);
+    QLabel *dataBitsLabel = new QLabel("Data Bits");
+    dataBitsLabel->setObjectName("dataBitsLabel");
+    dataBitsLabel->setStyleSheet(R"(
+        #dataBitsLabel {
+            color: black;
+        }
+    )");
 
-        QLabel *stopBitsLabel = new QLabel("Stop Bits");
-        stopBitsLabel->setObjectName("stopBitsLabel");
-        stopBitsLabel->setStyleSheet(R"(
-            #stopBitsLabel {
-                color: black;
-            }
-        )");
+    dataBits = new QComboBox;
+    dataBits->setObjectName("dataBits");
+    dataBits->setStyleSheet(R"(
+        #dataBits {
+            color: black;
+        }
+    )");
 
-        stopBits = new QComboBox;
-        stopBits->setObjectName("stopBits");
-        stopBits->setStyleSheet(R"(
-            #stopBits {
-                color: black;
-            }
-        )");
-        stopBits->addItem("1");
-        stopBits->addItem("1.5");
-        stopBits->addItem("2");
+    dataBits->addItem("8", QSerialPort::Data8);
+    dataBits->addItem("7", QSerialPort::Data7);
+    dataBits->addItem("6", QSerialPort::Data6);
+    dataBits->addItem("5", QSerialPort::Data5);
 
-        actionConn = new QPushButton("Connect");
-        actionConn->setObjectName("actionConn");
-        actionConn->setStyleSheet(R"(
-            #actionConn {
-                color: white;
-                border: .5px solid #D5D7DA;
-                border-radius: 5px;
-                padding-top: 6px;
-                padding-bottom: 6px;
-                background-color: #038189;
-            }
-            #actionConn:hover {
-                background-color: #038189;
-                color: white;
-            }
-        )");
-        connect(actionConn, &QPushButton::clicked, this, [this](){
-            connectSerial();
-        });
+    connect(dataBits, &QComboBox::textActivated, this, &MainWindow::dataBitsClicked);
 
-        actionDisconn = new QPushButton("Disconnect");
-        actionDisconn->setObjectName("actionDisconn");
-        actionDisconn->setStyleSheet(R"(
-            #actionDisconn {
-                color: black;
-                border: .5px solid #D5D7DA;
-                border-radius: 5px;
-                padding-top: 6px;
-                padding-bottom: 6px;
-            }
-            #actionDisconn:hover {
-                background-color: #FAFAFB;
-                color: black;
-            }
-        )");
-        connect(actionDisconn, &QPushButton::clicked, this, [this](){
-            disConnectSerial();
-        });
+    QLabel *parityLabel = new QLabel("Parity");
+    parityLabel->setObjectName("parityLabel");
+    parityLabel->setStyleSheet(R"(
+        #parityLabel {
+            color: black;
+        }
+    )");
+
+    parity = new QComboBox;
+    parity->setObjectName("parity");
+    parity->setStyleSheet(R"(
+        #parity {
+            color: black;
+        }
+    )");
+
+    parity->addItem("None", QSerialPort::NoParity);
+    parity->addItem("Even", QSerialPort::EvenParity);
+    parity->addItem("Odd", QSerialPort::OddParity);
+    parity->addItem("Mark", QSerialPort::MarkParity);
+    parity->addItem("Space", QSerialPort::SpaceParity);
+
+    connect(parity, &QComboBox::textActivated, this, &MainWindow::parityClicked);
+
+    QLabel *stopBitsLabel = new QLabel("Stop Bits");
+    stopBitsLabel->setObjectName("stopBitsLabel");
+    stopBitsLabel->setStyleSheet(R"(
+        #stopBitsLabel {
+            color: black;
+        }
+    )");
+
+    stopBits = new QComboBox;
+    stopBits->setObjectName("stopBits");
+    stopBits->setStyleSheet(R"(
+        #stopBits {
+            color: black;
+        }
+    )");
+
+    stopBits->addItem("1", QSerialPort::OneStop);
+    stopBits->addItem("1.5", QSerialPort::OneAndHalfStop);
+    stopBits->addItem("2", QSerialPort::TwoStop);
+
+    actionConn = new QPushButton("Connect");
+    actionConn->setObjectName("actionConn");
+    actionConn->setStyleSheet(R"(
+        #actionConn {
+            color: white;
+            border: .5px solid #D5D7DA;
+            border-radius: 5px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            background-color: #038189;
+        }
+
+        #actionConn:hover {
+            background-color: #038189;
+            color: white;
+        }
+    )");
+
+    connect(actionConn, &QPushButton::clicked, this, [this]() {
+        connectSerial();
+    });
+
+    actionDisconn = new QPushButton("Disconnect");
+    actionDisconn->setObjectName("actionDisconn");
+    actionDisconn->setStyleSheet(R"(
+        #actionDisconn {
+            color: black;
+            border: .5px solid #D5D7DA;
+            border-radius: 5px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        #actionDisconn:hover {
+            background-color: #FAFAFB;
+            color: black;
+        }
+    )");
+
+    connect(actionDisconn, &QPushButton::clicked, this, [this]() {
+        disConnectSerial();
+    });
 
     actionSecBox->addWidget(action);
     actionSecBox->addWidget(baudRateLabel);
@@ -287,7 +306,7 @@ MainWindow::MainWindow(QWidget *parent)
     actionSecBox->addWidget(actionConn);
     actionSecBox->addWidget(actionDisconn);
 
-
+    // ABOUT SECTION --------------------------------------------------------
     QWidget *aboutSection = new QWidget;
     aboutSection->setContentsMargins(0, 0, 20, 20);
 
@@ -307,8 +326,8 @@ MainWindow::MainWindow(QWidget *parent)
     connBoxLayout->addWidget(portSection, 1, 0);
     connBoxLayout->addWidget(actionSection, 2, 0);
     connBoxLayout->addWidget(aboutSection, 3, 0);
-    // ----------------------------------------------------------------------
 
+    // COMMUNICATION BOX ----------------------------------------------------
     QWidget *commBox = new QWidget;
     commBox->setObjectName("commBox");
     commBox->setStyleSheet(R"(
@@ -323,6 +342,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QWidget *commandSection = new QWidget;
     QGridLayout *commandSectionBox = new QGridLayout(commandSection);
+
     commandSection->setObjectName("commandSection");
     commandSection->setStyleSheet(R"(
         #commandSection {
@@ -351,8 +371,9 @@ MainWindow::MainWindow(QWidget *parent)
             background-color: #FAFAFB;
         }
     )");
-    connect(chat, &QLineEdit::returnPressed, this, [this](){
 
+    connect(chat, &QLineEdit::returnPressed, this, [this]() {
+        sendSerial(chat->text());
     });
 
     QWidget *sendLineWidget = new QWidget;
@@ -369,7 +390,8 @@ MainWindow::MainWindow(QWidget *parent)
             padding: 8px 20px;
         }
     )");
-    connect(sendLine, &QPushButton::clicked, this, [this](){
+
+    connect(sendLine, &QPushButton::clicked, this, [this]() {
         sendSerial(chat->text());
     });
 
@@ -382,13 +404,16 @@ MainWindow::MainWindow(QWidget *parent)
             border-radius: 5px;
             padding: 8px 20px;
         }
-        #clearLine:hover{
+
+        #clearLine:hover {
             background-color: #FAFAFB;
         }
     )");
-    connect(clearLine, &QPushButton::clicked, this, [this](){
+
+    connect(clearLine, &QPushButton::clicked, this, [this]() {
         clearLogs();
     });
+
     sendLineBox->setAlignment(Qt::AlignRight);
     sendLineBox->addWidget(sendLine);
     sendLineBox->addWidget(clearLine);
@@ -398,9 +423,10 @@ MainWindow::MainWindow(QWidget *parent)
     commandSectionBox->addWidget(chat, 1, 0);
     commandSectionBox->addWidget(sendLineWidget, 2, 0);
 
-
+    // SERIAL LOG SECTION ---------------------------------------------------
     QWidget *serialSection = new QWidget;
     QGridLayout *serialSectionBox = new QGridLayout(serialSection);
+
     serialSection->setObjectName("serialSection");
     serialSection->setStyleSheet(R"(
         #serialSection {
@@ -436,17 +462,13 @@ MainWindow::MainWindow(QWidget *parent)
     commBoxLayout->addWidget(commandSection);
     commBoxLayout->addWidget(serialSection);
 
-
-
-
     topLayout->addWidget(connBox, 0, 0);
     topLayout->setSpacing(20);
     topLayout->addWidget(commBox, 0, 1);
     topLayout->setColumnStretch(0, 1);
     topLayout->setColumnStretch(1, 4);
 
-
-    // READY CONN ------------------------------------------------------------
+    // BOTTOM STATUS --------------------------------------------------------
     QWidget *bottomBox = new QWidget;
     bottomBox->setObjectName("bottomBox");
     bottomBox->setFixedHeight(50);
@@ -476,7 +498,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QLabel *activeConn = new QLabel("No active connection");
+    activeConn = new QLabel("No active connection");
     activeConn->setObjectName("activeConn");
     activeConn->setStyleSheet(R"(
         #activeConn {
@@ -488,108 +510,281 @@ MainWindow::MainWindow(QWidget *parent)
     bottomLayout->addWidget(comSelected);
     bottomLayout->addStretch();
     bottomLayout->addWidget(activeConn);
-    // ----------------------------------------------------------------------
+
+    // SERIAL SIGNALS -------------------------------------------------------
+    connect(serial, &QSerialPort::readyRead, this, [this]() {
+        readSerialData();
+    });
+
+    connect(serial, &QSerialPort::errorOccurred, this, [this](QSerialPort::SerialPortError error) {
+        if (error == QSerialPort::NoError) {
+            return;
+        }
+
+        log("SERIAL ERROR: " + serial->errorString());
+
+        if (connectionStatus) {
+            connectionStatus->setText("Error");
+        }
+
+        if (activeConn) {
+            activeConn->setText("Error: " + serial->errorString());
+        }
+    });
 
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(bottomBox);
-    refreshPort();
 
+    refreshPort();
 }
 
-void MainWindow::refreshPort() {
+void MainWindow::refreshPort()
+{
     portCom->clear();
     baudRate->clear();
 
     const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+
     for (const QSerialPortInfo &port : ports) {
-        QString label = QString("%1 | %2").arg(port.portName(), port.description());
+        QString label = QString("%1 | %2 | %3")
+        .arg(port.portName())
+            .arg(port.description())
+            .arg(port.manufacturer());
+
         portCom->addItem(label, port.portName());
     }
 
     const QList<qint32> bauds = QSerialPortInfo::standardBaudRates();
-    for(qint32 baud : bauds) {
+
+    for (qint32 baud : bauds) {
         baudRate->addItem(QString::number(baud), baud);
     }
 
-    // Optional: select a common default baud rate
     int index = baudRate->findData(115200);
+
     if (index != -1) {
         baudRate->setCurrentIndex(index);
     }
 
     if (ports.isEmpty()) {
-        log("Port not selected");
+        log("No serial ports found.");
+
+        if (comSelected) {
+            comSelected->setText("");
+        }
     } else {
         log(QString("Found %1 serial port(s).").arg(ports.size()));
+        comSelected->setText(portCom->currentData().toString());
     }
 }
 
-void MainWindow::comClicked(QString com) {
-    comSelected->setText(com);
+void MainWindow::comClicked(QString com)
+{
+    Q_UNUSED(com);
+
+    const QString portName = portCom->currentData().toString();
+    comSelected->setText(portName);
 }
 
-void MainWindow::baudRateClicked(QString baud) {
-
+void MainWindow::baudRateClicked(QString baud)
+{
     log(QString("Baud Rate: [%1]").arg(baud));
 }
 
-void MainWindow::dataBitsClicked(QString data) {
+void MainWindow::dataBitsClicked(QString data)
+{
     log(QString("Data Bits: [%1]").arg(data));
 }
 
-void MainWindow::parityClicked(QString prt) {
+void MainWindow::parityClicked(QString prt)
+{
     log(QString("Parity: [%1]").arg(prt));
 }
 
-void MainWindow::connectSerial() {
+void MainWindow::connectSerial()
+{
+    if (serial->isOpen()) {
+        serial->close();
+    }
 
-    QString selectedPort = portCom->currentData().toString();
-    int selectedBaudRate = baudRate->currentText().toInt();
-    int selectedDataBits = dataBits->currentText().toInt();
-    QString selectedParity = parity->currentText();
-
-    int selectedStopBits = stopBits->currentData().toInt();
-
-
-    qDebug() << "Port:" << selectedPort;
-    qDebug() << "Baud Rate:" << selectedBaudRate;
-    qDebug() << "Data Bits:" << selectedDataBits;
-    qDebug() << "Parity:" << selectedParity;
-    qDebug() << "Stop Bits:" << selectedStopBits;
-
-    log(QString("Connecting to %1 at %2 baud")
-            .arg(selectedPort)
-            .arg(selectedBaudRate));
-
-
-
-}
-
-void MainWindow::disConnectSerial() {
-    log("Disconnected");
-}
-
-void MainWindow::sendSerial(QString packet) {
-    if(packet.isEmpty()) {
-        log("No command send!");
+    if (portCom->currentIndex() < 0) {
+        log("No port selected.");
         return;
     }
-    log(QString("TX: %1").arg(packet));
+
+    const QString selectedPort = portCom->currentData().toString();
+
+    if (selectedPort.isEmpty()) {
+        log("No serial port selected.");
+        return;
+    }
+
+    const qint32 selectedBaudRate = baudRate->currentData().toInt();
+
+    const QSerialPort::DataBits selectedDataBits =
+        static_cast<QSerialPort::DataBits>(dataBits->currentData().toInt());
+
+    const QSerialPort::Parity selectedParity =
+        static_cast<QSerialPort::Parity>(parity->currentData().toInt());
+
+    const QSerialPort::StopBits selectedStopBits =
+        static_cast<QSerialPort::StopBits>(stopBits->currentData().toInt());
+
+    serial->setPortName(selectedPort);
+    serial->setBaudRate(selectedBaudRate);
+    serial->setDataBits(selectedDataBits);
+    serial->setParity(selectedParity);
+    serial->setStopBits(selectedStopBits);
+    serial->setFlowControl(QSerialPort::NoFlowControl);
+
+    log(QString("Opening %1...").arg(selectedPort));
+
+    if (!serial->open(QIODevice::ReadWrite)) {
+        log("OPEN FAILED: " + serial->errorString());
+
+        if (connectionStatus) {
+            connectionStatus->setText("Disconnected");
+        }
+
+        if (activeConn) {
+            activeConn->setText("Failed to open " + selectedPort);
+        }
+
+        return;
+    }
+
+    const QString modeText = QString("%1 %2%3%4")
+                                 .arg(selectedBaudRate)
+                                 .arg(dataBits->currentText())
+                                 .arg(parity->currentText() == "None" ? "N" : parity->currentText().left(1))
+                                 .arg(stopBits->currentText());
+
+    log("CONNECTED: " + selectedPort);
+    log("MODE: " + modeText);
+
+    if (connectionStatus) {
+        connectionStatus->setText("Connected");
+    }
+
+    if (activeConn) {
+        activeConn->setText("Connected to " + selectedPort + " at " + modeText);
+    }
+
+    if (comSelected) {
+        comSelected->setText(selectedPort);
+    }
+}
+
+void MainWindow::disConnectSerial()
+{
+    if (serial && serial->isOpen()) {
+        const QString portName = serial->portName();
+        serial->close();
+
+        log("DISCONNECTED: " + portName);
+
+        if (connectionStatus) {
+            connectionStatus->setText("Disconnected");
+        }
+
+        if (activeConn) {
+            activeConn->setText("No active connection");
+        }
+
+        return;
+    }
+
+    log("Serial port is not open.");
+
+    if (connectionStatus) {
+        connectionStatus->setText("Disconnected");
+    }
+
+    if (activeConn) {
+        activeConn->setText("No active connection");
+    }
+}
+
+void MainWindow::sendSerial(QString packet)
+{
+    if (packet.isEmpty()) {
+        log("No command sent.");
+        return;
+    }
+
+    if (!serial || !serial->isOpen()) {
+        log("Cannot send. Serial port is not open.");
+        return;
+    }
+
+    QByteArray data = packet.toLatin1();
+    data.append("\r\n");
+
+    const qint64 written = serial->write(data);
+
+    if (written < 0) {
+        log("SEND FAILED: " + serial->errorString());
+        return;
+    }
+
+    log("TX ASCII: " + QString::fromLatin1(data).trimmed());
+    log("TX HEX:   " + bytesToHex(data));
+}
+
+void MainWindow::readSerialData()
+{
+    if (!serial) {
+        return;
+    }
+
+    const QByteArray data = serial->readAll();
+
+    if (data.isEmpty()) {
+        return;
+    }
+
+    log("RX ASCII: " + QString::fromLatin1(data).trimmed());
+    log("RX HEX:   " + bytesToHex(data));
 }
 
 void MainWindow::log(const QString &text)
 {
+    if (!logBox) {
+        return;
+    }
+
     const QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
     logBox->append(QString("[%1] %2").arg(time, text));
 }
 
-void MainWindow::clearLogs() {
+void MainWindow::clearLogs()
+{
+    if (!logBox) {
+        return;
+    }
+
     logBox->clear();
+
     const QString time = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
     logBox->append(QString("[%1] %2").arg(time, "Log Cleared!"));
 }
 
+QString MainWindow::bytesToHex(const QByteArray &data) const
+{
+    QString out;
+
+    for (unsigned char byte : data) {
+        out += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
+    }
+
+    return out.trimmed();
+}
+
 MainWindow::~MainWindow()
 {
+    if (serial && serial->isOpen()) {
+        serial->close();
+    }
+
     delete ui;
 }
