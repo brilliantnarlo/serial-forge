@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QTextEdit>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -305,11 +306,16 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
+    QTextEdit *logBox = new QTextEdit();
+    logBox->setReadOnly(true);
+
     serialSectionBox->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     serialSectionBox->addWidget(serialLog);
+    serialSectionBox->addWidget(logBox);
 
     commBoxLayout->addWidget(commandSection);
     commBoxLayout->addWidget(serialSection);
+
 
 
 
