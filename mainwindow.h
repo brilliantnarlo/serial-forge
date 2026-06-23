@@ -34,6 +34,7 @@ private:
     QTextEdit *logBox = nullptr;
     QPushButton *actionConn = nullptr;
     QPushButton *actionDisconn = nullptr;
+    QComboBox *baudRate = nullptr;
 
 };
 #endif // MAINWINDOW_H

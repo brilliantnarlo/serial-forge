@@ -159,6 +159,29 @@ MainWindow::MainWindow(QWidget *parent)
             }
         )");
 
+        QLabel *buadRateLabel = new QLabel("Baud Rate");
+        baudRate = new QComboBox;
+
+        QLabel *dataBitsLabel = new QLabel("Data Bits");
+        QComboBox *dataBits = new QComboBox;
+        dataBits->addItem("8");
+        dataBits->addItem("5");
+        dataBits->addItem("6");
+        dataBits->addItem("7");
+
+        QLabel *parityLabel = new QLabel("Parity");
+        QComboBox *parity = new QComboBox;
+        parity->addItem("None");
+        parity->addItem("Even");
+        parity->addItem("Mark");
+        parity->addItem("Odd");
+
+        QLabel *stopBitsLabel = new QLabel("Stop Bits");
+        QComboBox *stopBits = new QComboBox;
+        stopBits->addItem("1");
+        stopBits->addItem("1.5");
+        stopBits->addItem("2");
+
         actionConn = new QPushButton("Connect");
         actionConn->setObjectName("actionConn");
         actionConn->setStyleSheet(R"(
@@ -199,6 +222,14 @@ MainWindow::MainWindow(QWidget *parent)
         });
 
     actionSecBox->addWidget(action);
+    actionSecBox->addWidget(buadRateLabel);
+    actionSecBox->addWidget(baudRate);
+    actionSecBox->addWidget(dataBitsLabel);
+    actionSecBox->addWidget(dataBits);
+    actionSecBox->addWidget(parityLabel);
+    actionSecBox->addWidget(parity);
+    actionSecBox->addWidget(stopBitsLabel);
+    actionSecBox->addWidget(stopBits);
     actionSecBox->addWidget(actionConn);
     actionSecBox->addWidget(actionDisconn);
 
@@ -395,11 +426,23 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::refreshPort() {
     portCom->clear();
+    baudRate->clear();
 
     const QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &port : ports) {
         QString label = QString("%1 | %2").arg(port.portName(), port.description());
         portCom->addItem(label, port.portName());
+    }
+
+    const QList<qint32> bauds = QSerialPortInfo::standardBaudRates();
+    for(qint32 baud : bauds) {
+        baudRate->addItem(QString::number(baud), baud);
+    }
+
+    // Optional: select a common default baud rate
+    int index = baudRate->findData(115200);
+    if (index != -1) {
+        baudRate->setCurrentIndex(index);
     }
 
     if (ports.isEmpty()) {
