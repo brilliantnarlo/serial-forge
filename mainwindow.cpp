@@ -179,6 +179,7 @@ MainWindow::MainWindow(QWidget *parent)
     baudRate->setStyleSheet(R"(
         #baudRate {
             color: black;
+            padding: 20px;
         }
     )");
 
@@ -536,6 +537,7 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(bottomBox);
 
     refreshPort();
+    setFixedSize(900, 710);
 }
 
 void MainWindow::refreshPort()
