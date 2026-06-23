@@ -165,18 +165,20 @@ MainWindow::MainWindow(QWidget *parent)
         connect(baudRate, &QComboBox::textActivated, this, &MainWindow::baudRateClicked);
 
         QLabel *dataBitsLabel = new QLabel("Data Bits");
-        QComboBox *dataBits = new QComboBox;
+        dataBits = new QComboBox;
         dataBits->addItem("8");
         dataBits->addItem("7");
         dataBits->addItem("6");
         dataBits->addItem("5");
+        connect(dataBits, &QComboBox::textActivated, this, &MainWindow::dataBitsClicked);
 
         QLabel *parityLabel = new QLabel("Parity");
-        QComboBox *parity = new QComboBox;
+        parity = new QComboBox;
         parity->addItem("None");
         parity->addItem("Even");
         parity->addItem("Mark");
         parity->addItem("Odd");
+        connect(parity, &QComboBox::textActivated, this, &MainWindow::parityClicked);
 
         QLabel *stopBitsLabel = new QLabel("Stop Bits");
         QComboBox *stopBits = new QComboBox;
@@ -469,6 +471,14 @@ void MainWindow::comClicked(QString com) {
 
 void MainWindow::baudRateClicked(QString baud) {
     log(QString("Baud Rate: [%1]").arg(baud));
+}
+
+void MainWindow::dataBitsClicked(QString data) {
+    log(QString("Data Bits: [%1]").arg(data));
+}
+
+void MainWindow::parityClicked(QString prt) {
+    log(QString("Parity: [%1]").arg(prt));
 }
 
 void MainWindow::connectSerial() {
