@@ -62,38 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     )");
     connectionSection->setContentsMargins(0, 0, 20, 20);
 
-    QGridLayout *connectionSecBox = new QGridLayout(connectionSection);
 
-    QLabel *connection = new QLabel("CONNECTION");
-    connection->setObjectName("conn");
-    connection->setStyleSheet(R"(
-        #conn {
-            color: #6A6F78;
-        }
-    )");
-
-    QPixmap icons(":/assets/fpga_ui_icons/disconnect_broken_link.png");
-    QLabel *icon = new QLabel;
-    icon->setPixmap(icons.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-
-    icon->setObjectName("connIcon");
-    icon->setStyleSheet(R"(
-        #connIcon {
-            color: #6A6F78;
-        }
-    )");
-
-    connectionStatus = new QLabel("Disconnected");
-    connectionStatus->setObjectName("connectionStatus");
-    connectionStatus->setStyleSheet(R"(
-        #connectionStatus {
-            color: #202733;
-        }
-    )");
-
-    connectionSecBox->addWidget(connection, 0, 0);
-    connectionSecBox->addWidget(icon, 1, 0);
-    connectionSecBox->addWidget(connectionStatus, 1, 1);
 
     // PORT SECTION ---------------------------------------------------------
     QWidget *portSection = new QWidget;
@@ -152,12 +121,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // ACTION SECTION -------------------------------------------------------
     QWidget *actionSection = new QWidget;
-    actionSection->setObjectName("actionSection");
-    actionSection->setStyleSheet(R"(
-        #actionSection {
-            border-bottom: .5px solid #E9E9EB;
-        }
-    )");
     actionSection->setContentsMargins(0, 0, 20, 20);
 
     QGridLayout *actionSecBox = new QGridLayout(actionSection);
