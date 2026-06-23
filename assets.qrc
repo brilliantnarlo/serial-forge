@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>fpga_ui_icons/app_chip.png</file>
+        <file>fpga_ui_icons/connect_link.png</file>
+        <file>fpga_ui_icons/disconnect_broken_link.png</file>
+        <file>fpga_ui_icons/clear_x.png</file>
+        <file>fpga_ui_icons/send_plane.png</file>
+        <file>fpga_ui_icons/terminal_log.png</file>
+        <file>fpga_ui_icons/not_connected_badge.png</file>
+        <file>fpga_ui_icons/status_dot_ready.png</file>
+        <file>fpga_ui_icons/refresh_ports.png</file>
+        <file>fpga_ui_icons/serial_port.png</file>
+    </qresource>
+</RCC>
