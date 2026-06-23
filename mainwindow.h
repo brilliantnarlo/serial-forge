@@ -45,6 +45,7 @@ private:
     QLabel *comSelected = nullptr;
     QComboBox *dataBits = nullptr;
     QComboBox *parity = nullptr;
+    QComboBox *stopBits = nullptr;
     QPushButton *clearLine = nullptr;
     QLineEdit *chat = nullptr;
 

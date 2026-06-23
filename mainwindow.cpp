@@ -224,7 +224,8 @@ MainWindow::MainWindow(QWidget *parent)
                 color: black;
             }
         )");
-        QComboBox *stopBits = new QComboBox;
+
+        stopBits = new QComboBox;
         stopBits->setObjectName("stopBits");
         stopBits->setStyleSheet(R"(
             #stopBits {
@@ -528,6 +529,7 @@ void MainWindow::comClicked(QString com) {
 }
 
 void MainWindow::baudRateClicked(QString baud) {
+
     log(QString("Baud Rate: [%1]").arg(baud));
 }
 
@@ -540,15 +542,27 @@ void MainWindow::parityClicked(QString prt) {
 }
 
 void MainWindow::connectSerial() {
-    if (serial->isOpen()) {
-    }
 
-    serial->setPortName(comSelected->text());
+    QString selectedPort = portCom->currentData().toString();
+    int selectedBaudRate = baudRate->currentData().toInt();
+    int selectedDataBits = dataBits->currentData().toInt();
+    QString selectedParity = parity->currentText();
 
-    if (!serial->open(QIODevice::ReadWrite)) {
-        log("OPEN FAILED: " + serial->errorString());
-        return;
-    }
+    int selectedStopBits = stopBits->currentData().toInt();
+
+
+    qDebug() << "Port:" << selectedPort;
+    qDebug() << "Baud Rate:" << selectedBaudRate;
+    qDebug() << "Data Bits:" << selectedDataBits;
+    qDebug() << "Parity:" << selectedParity;
+    qDebug() << "Stop Bits:" << selectedStopBits;
+
+    log(QString("Connecting to %1 at %2 baud")
+            .arg(selectedPort)
+            .arg(selectedBaudRate));
+
+
+
 }
 
 void MainWindow::disConnectSerial() {
