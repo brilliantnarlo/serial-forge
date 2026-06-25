@@ -2,10 +2,12 @@
 
 #include <QApplication>
 #include <QStyleFactory>
+#include <QIcon>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setWindowIcon(QIcon(":/assets/fpga_ui_icons/app_chip.png"));
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     a.setStyleSheet(R"(
